@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-02T18:31:19.700Z",
+        "reason": "user specified: both project briefs require 'Inter for body text' alongside Manrope for headings"
+      }
+    ]
+  }
+}
