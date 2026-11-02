@@ -34,4 +34,4 @@ desktop.ini
 .claude/settings.local.json
 
 # Design-checker cache (regenerated on every run)
-.impeccable/hook.cache.json
+**/.impeccable/hook.cache.json
