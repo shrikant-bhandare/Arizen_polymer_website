@@ -58,7 +58,7 @@ const scriptJson = (v: unknown) =>
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 function imagePreload(url: string): string {
-  if (!/^\/(uploads|media\/products)\/.+\.webp$/.test(url)) return url ? `<link rel="preload" as="image" href="${esc(url)}" fetchpriority="high">` : '';
+  if (!/^(\/|https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/)(uploads|media\/products)\/.+\.webp$/.test(url)) return url ? `<link rel="preload" as="image" href="${esc(url)}" fetchpriority="high">` : '';
   const base = url.slice(0, -'.webp'.length);
   const set = VARIANT_WIDTHS.map((w) => `${base}-${w}.avif ${w}w`).join(', ');
   return `<link rel="preload" as="image" type="image/avif" imagesrcset="${esc(set)}" imagesizes="(min-width: 1024px) 50vw, 100vw" fetchpriority="high">`;

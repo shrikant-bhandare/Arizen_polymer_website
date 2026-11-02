@@ -7,7 +7,8 @@ import type { MediaAsset, Paged } from '../lib/types';
 import { Button, Modal, useResource, useToast } from './ui';
 
 export const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-export const MAX_MB = 10;
+/** Matches the server's MAX_UPLOAD_MB default (Vercel functions accept bodies up to 4.5 MB). */
+export const MAX_MB = 4;
 
 /** Client-side checks mirror the server so editors get instant, specific feedback. */
 export function checkFile(file: File): string | null {

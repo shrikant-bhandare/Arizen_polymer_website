@@ -1,0 +1,26 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd website && MONGOMS_DISABLE_POSTINSTALL=1 npm ci",
+  "buildCommand": "cd website && npm run build:vercel",
+  "outputDirectory": "website/client/dist",
+  "functions": {
+    "api/index.mjs": {
+      "memory": 1024,
+      "maxDuration": 30,
+      "includeFiles": "website/client/dist/{app-shell.html,.vite/manifest.json}",
+      "excludeFiles": "website/node_modules/{mongodb-memory-server,mongodb-memory-server-core,playwright-core,lighthouse,vitest,@vitest,typescript,vite,rolldown,@rolldown}/**"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    }
+  ]
+}

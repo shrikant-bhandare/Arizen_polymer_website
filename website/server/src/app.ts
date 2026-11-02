@@ -79,7 +79,9 @@ export function createApp() {
   });
 
   /* ---------------------------------------------------------------- Website */
-  const indexFile = path.join(config.CLIENT_DIST, 'index.html');
+  // On Vercel the shell is renamed to app-shell.html so the CDN never serves it
+  // un-rendered; every other host keeps index.html.
+  const indexFile = ['index.html', 'app-shell.html'].map((f) => path.join(config.CLIENT_DIST, f)).find((f) => existsSync(f)) ?? path.join(config.CLIENT_DIST, 'index.html');
   if (existsSync(indexFile)) {
     const template = readFileSync(indexFile, 'utf8');
     app.use(

@@ -20,7 +20,8 @@
     "test": "npm run test -w server",
     "typecheck": "npm run typecheck -w client && npm run typecheck -w server",
     "e2e": "node scripts/e2e.mjs",
-    "lighthouse": "node scripts/lighthouse.mjs"
+    "lighthouse": "node scripts/lighthouse.mjs",
+    "build:vercel": "node scripts/vercel-build.mjs"
   },
   "devDependencies": {
     "concurrently": "^10.0.6",

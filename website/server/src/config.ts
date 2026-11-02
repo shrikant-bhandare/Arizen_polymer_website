@@ -25,7 +25,10 @@ const schema = z.object({
   TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
   UPLOAD_DIR: z.string().default(path.join(serverRoot, 'uploads')),
   CLIENT_DIST: z.string().default(path.resolve(serverRoot, '../client/dist')),
-  MAX_UPLOAD_MB: z.coerce.number().positive().max(50).default(10),
+  // Vercel functions accept request bodies up to 4.5 MB, so 4 MB is the default everywhere.
+  MAX_UPLOAD_MB: z.coerce.number().positive().max(50).default(4),
+  /** Set on Vercel: uploads are stored in Vercel Blob instead of on disk. */
+  BLOB_READ_WRITE_TOKEN: z.string().default(''),
   /** Per address: inquiries per hour and failed sign-ins per 15 minutes. */
   INQUIRY_RATE_LIMIT: z.coerce.number().int().positive().default(8),
   LOGIN_RATE_LIMIT: z.coerce.number().int().positive().default(10),

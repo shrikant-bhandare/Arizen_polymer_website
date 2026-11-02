@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { del, put } from '@vercel/blob';
 import sharp, { type Metadata } from 'sharp';
 import { config } from '../config';
 import { HttpError } from '../middleware/errors';
@@ -12,6 +13,25 @@ const ALLOWED_FORMATS = new Set(['jpeg', 'png', 'webp', 'heif']);
 /** Responsive widths. The public <Img> component builds srcsets from this same list. */
 export const VARIANT_WIDTHS = [480, 960, 1600] as const;
 const MASTER_MAX = 2400;
+
+/**
+ * Where image files live. With BLOB_READ_WRITE_TOKEN set (Vercel), files go to
+ * Vercel Blob storage; otherwise to UPLOAD_DIR on disk. Names are deterministic
+ * (no random suffix) so the <Img> component can derive the responsive sizes.
+ */
+const useBlob = () => Boolean(config.BLOB_READ_WRITE_TOKEN);
+const BLOB_URL = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/uploads\//;
+
+async function saveFile(rel: string, data: Buffer, contentType: string): Promise<string> {
+  if (useBlob()) {
+    const { url } = await put(`uploads/${rel}`, data, { access: 'public', contentType, addRandomSuffix: false, cacheControlMaxAge: 31_536_000, token: config.BLOB_READ_WRITE_TOKEN });
+    return url;
+  }
+  const abs = path.join(config.UPLOAD_DIR, rel);
+  await mkdir(path.dirname(abs), { recursive: true });
+  await writeFile(abs, data);
+  return `/uploads/${rel}`;
+}
 
 /**
  * Re-encodes an uploaded image: verifies it really is an image (by decoding it,
@@ -32,26 +52,23 @@ export async function storeImage(buffer: Buffer, originalName: string, uploadedB
   const now = new Date();
   const dir = `${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
   const id = randomUUID();
-  const absDir = path.join(config.UPLOAD_DIR, dir);
-  await mkdir(absDir, { recursive: true });
 
   const base = () => sharp(buffer, { limitInputPixels: 40_000_000 }).rotate();
   const master = await base().resize({ width: MASTER_MAX, withoutEnlargement: true }).webp({ quality: 82 }).toBuffer({ resolveWithObject: true });
-  await writeFile(path.join(absDir, `${id}.webp`), master.data);
+  const url = await saveFile(`${dir}/${id}.webp`, master.data, 'image/webp');
 
   const variants: { width: number; format: string; url: string; size: number }[] = [];
   for (const width of VARIANT_WIDTHS) {
     for (const format of ['webp', 'avif'] as const) {
       const pipeline = base().resize({ width, withoutEnlargement: true });
       const out = await (format === 'webp' ? pipeline.webp({ quality: 80 }) : pipeline.avif({ quality: 55, effort: 4 })).toBuffer();
-      const file = `${id}-${width}.${format}`;
-      await writeFile(path.join(absDir, file), out);
-      variants.push({ width, format, url: `/uploads/${dir}/${file}`, size: out.length });
+      const variantUrl = await saveFile(`${dir}/${id}-${width}.${format}`, out, `image/${format}`);
+      variants.push({ width, format, url: variantUrl, size: out.length });
     }
   }
 
   return MediaAsset.create({
-    url: `/uploads/${dir}/${id}.webp`,
+    url,
     originalName: path.basename(originalName).slice(0, 200),
     mime: 'image/webp',
     size: master.data.length,
@@ -88,5 +105,7 @@ export async function deleteImageFiles(asset: { url: string; variants: { url?: s
     return abs;
   };
   const urls = [asset.url, ...asset.variants.map((v) => v.url).filter((u): u is string => !!u)];
-  await Promise.all(urls.map((u) => rm(toPath(u), { force: true })));
+  const blobs = urls.filter((u) => BLOB_URL.test(u));
+  if (blobs.length) await del(blobs, { token: config.BLOB_READ_WRITE_TOKEN });
+  await Promise.all(urls.filter((u) => u.startsWith('/uploads/')).map((u) => rm(toPath(u), { force: true })));
 }

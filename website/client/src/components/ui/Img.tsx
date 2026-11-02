@@ -1,7 +1,7 @@
 import type { ImgHTMLAttributes } from 'react';
 
 /** Uploaded images and bundled product renders ship with these widths in WebP and AVIF. */
-const RESPONSIVE = /^\/(uploads|media\/products)\/.+\.webp$/;
+const RESPONSIVE = /^(\/|https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/)(uploads|media\/products)\/.+\.webp$/;
 const WIDTHS = [480, 960, 1600];
 
 interface ImgProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'> {

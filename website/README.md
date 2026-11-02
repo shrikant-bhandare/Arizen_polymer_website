@@ -104,7 +104,8 @@ python scripts/render-illustrations.py && python scripts/make-og-image.py
 
 ## Documentation
 
-- [docs/deployment.md](docs/deployment.md): environment, Docker Compose or PM2, Nginx + TLS, DNS, email, backups, monitoring, launch checklist
+- [docs/deploy-vercel.md](docs/deploy-vercel.md): **Vercel** hosting with MongoDB Atlas and Vercel Blob (current host)
+- [docs/deployment.md](docs/deployment.md): self-hosting with Docker Compose or PM2, Nginx + TLS, DNS, email, backups, monitoring, launch checklist
 - [docs/admin-guide.md](docs/admin-guide.md): how the Arizen team uses the CMS
 - [docs/client-content-checklist.md](docs/client-content-checklist.md): what Arizen needs to supply
 - [docs/visual-production.md](docs/visual-production.md): Google Flow production plan and prompts
