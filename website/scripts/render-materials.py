@@ -40,14 +40,17 @@ AMB_COL = np.array((0.80, 0.86, 0.95)) * 0.26
 GROUND = np.array((0.035, 0.055, 0.085))
 
 MATERIALS = {
-    # Colours follow Arizen's own material photography: black HIPS (satin), black ABS
-    # (glossier), blue HDPE and clear polystyrene.
-    "hips": dict(kind="opaque", albedo=(0.045, 0.047, 0.052), axes=(1.45, 1.0, 0.9),
-                 spec=0.75, shin=48, wrap=0.35, tilt=0.18, unit=50, layers=3, seed=11),
-    "abs": dict(kind="opaque", albedo=(0.06, 0.062, 0.07), axes=(1.35, 1.05, 0.95),
-                spec=1.35, shin=150, wrap=0.2, tilt=0.18, unit=50, layers=3, seed=23),
-    "hdpe": dict(kind="opaque", albedo=(0.035, 0.2, 0.82), axes=(1.22, 1.12, 0.8),
-                 spec=0.9, shin=80, wrap=0.3, tilt=0.3, unit=52, layers=3, seed=37),
+    # Colours match Arizen's brochure photography (measured from it): glossy black HIPS
+    # and ABS, royal-blue HDPE, under neutral studio light on a dark ground.
+    "hips": dict(kind="opaque", studio=True, albedo=(0.005, 0.005, 0.0055), ground=(0.003, 0.0033, 0.004),
+                 axes=(1.45, 1.0, 0.9), spec=3.0, shin=34, gloss=3.0, box=(0.8, 0.18),
+                 wrap=0.35, tilt=0.18, unit=50, layers=3, seed=11),
+    "abs": dict(kind="opaque", studio=True, albedo=(0.005, 0.005, 0.0055), ground=(0.003, 0.0033, 0.004),
+                axes=(1.35, 1.05, 0.95), spec=2.6, shin=60, gloss=2.6, box=(0.84, 0.15),
+                wrap=0.2, tilt=0.18, unit=50, layers=3, seed=23),
+    "hdpe": dict(kind="opaque", studio=True, albedo=(0.0, 0.15, 1.0), ground=(0.002, 0.015, 0.06),
+                 axes=(1.22, 1.12, 0.8), spec=0.9, shin=50, gloss=0.7, box=(0.82, 0.16), grade=(1.0, 1.25, 1.4),
+                 wrap=0.3, tilt=0.3, unit=52, layers=3, seed=37),
     "gpps": dict(kind="clear", tint=(0.84, 0.95, 0.98), axes=(1.5, 1.0, 0.95),
                  spec=1.8, shin=260, tilt=0.18, unit=54, layers=2, spacing=1.2, seed=53),
     # Website hero: two beds with identical geometry (same seed and layout) so the
@@ -164,11 +167,11 @@ def ambient_occlusion(zbuf, unit):
     return np.clip(1 - (around - zbuf) / (unit * 1.4), 0.3, 1.0)
 
 
-def env(n):
-    """Large soft-box reflection for glossy and clear materials."""
-    t = np.clip((n @ KEY - 0.55) / 0.4, 0, 1)
+def env(n, box=(0.55, 0.4), base=GROUND * 0.6):
+    """Soft-box reflection for glossy and clear materials; `box` sets where it starts and how wide it is."""
+    t = np.clip((n @ KEY - box[0]) / box[1], 0, 1)
     t = t * t * (3 - 2 * t)
-    return GROUND * 0.6 + t[..., None] * np.array((1.6, 1.6, 1.62))
+    return base + t[..., None] * np.array((1.6, 1.6, 1.62))
 
 
 def smoothstep(e0, e1, x):
@@ -194,8 +197,17 @@ def shade(m, n, thick, scale, jitter, shadow, ao, behind):
         return body * 0.96 + fres * env(n) * 0.8 + spec * m["spec"] * KEY_COL + glint * tint + rim
 
     alb = np.array(m["albedo"]) * jitter
-    lit = alb * (AMB_COL * ao + KEY_COL * ndl * shadow + FILL_COL * ndf)
-    lit = lit + spec * m["spec"] * shadow * KEY_COL + fres * 0.08 * np.array((0.32, 0.78, 0.85))
+    if m.get("studio"):
+        # Neutral white studio light, so true blacks stay black and colours stay
+        # saturated (the default cyan fill and rim would tint them blue-grey).
+        amb, fill, rim = np.full(3, 0.22), np.full(3, 0.2), np.zeros(3)
+    else:
+        amb, fill, rim = AMB_COL, FILL_COL, np.array((0.32, 0.78, 0.85))
+    lit = alb * (amb * ao + KEY_COL * ndl * shadow + fill * ndf)
+    lit = lit + spec * m["spec"] * shadow * KEY_COL + fres * 0.08 * rim
+    if m.get("gloss"):
+        # Glossy plastic: a clear-coat reflection of the soft box over the body colour.
+        lit = lit + m["gloss"] * (0.04 + 0.96 * fres) * env(n, m.get("box", (0.55, 0.4)), 0.0) * (0.35 + 0.65 * shadow)
     if m["kind"] == "translucent":
         t = m["trans"] * np.exp(-thick / (scale * 0.9))[..., None]
         scatter_glow = alb * 0.14 * (1 - ndl)
@@ -251,7 +263,8 @@ def render(name, width=None, out_dir=None):
     noise = rng.normal(0, 1, (RH, RW))
     noise = blur_float(noise, 2) * 0.25 + 1
     lit_ground = (0.8 + 0.2 * shadow) if clear else (0.55 + 0.45 * shadow) * ao
-    img = GROUND[None, None, :] * lit_ground[..., None] * noise[..., None]
+    ground = np.array(m.get("ground", GROUND))
+    img = ground[None, None, :] * lit_ground[..., None] * noise[..., None]
     if clear:
         img = img * 2.2 + caustics(pellets, unit)[..., None] * np.array((0.55, 0.85, 0.95))
     zrun = np.full((RH, RW), ground_z)
