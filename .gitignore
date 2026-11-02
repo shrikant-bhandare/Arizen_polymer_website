@@ -33,3 +33,6 @@ desktop.ini
 
 # Local Claude Code settings (.claude/launch.json is shared)
 .claude/settings.local.json
+
+# Design-checker cache (regenerated on every run)
+.impeccable/hook.cache.json
