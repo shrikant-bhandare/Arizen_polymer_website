@@ -115,6 +115,66 @@
   }
 }
 
+/* Production-line pictograms: each moving part runs only while its station is active. */
+.pi-part {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-play-state: paused;
+}
+[data-active='true'] .pi-part {
+  animation-play-state: running;
+}
+.pi-fall {
+  animation: pi-fall 1.2s linear infinite;
+}
+.pi-drop {
+  animation: pi-drop 1s cubic-bezier(0.55, 0, 1, 0.45) infinite;
+}
+.pi-rotate {
+  animation: pi-rotate 1.8s linear infinite;
+}
+.pi-rotate-fast {
+  animation: pi-rotate 0.6s linear infinite;
+}
+.pi-slide {
+  animation: pi-slide 0.7s linear infinite;
+}
+.pi-wave {
+  animation: pi-slide 1.2s linear infinite;
+}
+.pi-pulse {
+  animation: pi-pulse 0.9s ease-in-out infinite alternate;
+}
+.pi-swing {
+  transform-origin: 50% 100%;
+  animation: pi-swing 1.4s ease-in-out infinite alternate;
+}
+@keyframes pi-fall {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(16px); opacity: 0; }
+}
+@keyframes pi-drop {
+  0% { transform: translateY(-4px); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(7px); opacity: 0; }
+}
+@keyframes pi-rotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes pi-slide {
+  from { transform: translateX(-6px); }
+  to { transform: translateX(0); }
+}
+@keyframes pi-pulse {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+@keyframes pi-swing {
+  from { transform: rotate(-55deg); }
+  to { transform: rotate(40deg); }
+}
+
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }

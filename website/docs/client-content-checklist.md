@@ -52,7 +52,7 @@ Tick items off as they are entered in the dashboard (`/admin`).
 | ☐ | Storage infrastructure text + photograph | Infrastructure → Storage infrastructure |
 | ☐ | Distribution capabilities text + photograph | Infrastructure → Distribution capabilities |
 | ☐ | Material handling text + photograph | Infrastructure → Material handling |
-| ☐ | Operational process steps (order → dispatch) | Infrastructure → Operational processes |
+| ☐ | Operational process steps (order → dispatch). Until these are entered, the page shows an animated *typical* granule-making process, labelled as an illustration; adding steps replaces it with Arizen's own | Infrastructure → Operational processes |
 | ☐ | Gallery photographs (8–12) with captions | Infrastructure → Image gallery |
 
 When a real photograph replaces a conceptual illustration, **switch off "Image is a conceptual illustration"**.

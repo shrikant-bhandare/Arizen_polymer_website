@@ -1,5 +1,8 @@
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useRef, type ReactNode } from 'react';
 import { useLoaderData } from 'react-router';
-import { Reveal, Stagger, StaggerItem } from '../components/motion/Reveal';
+import { easePremium, Reveal, Stagger, StaggerItem } from '../components/motion/Reveal';
+import { ProcessFlow, type FlowStep } from '../components/process/ProcessFlow';
 import { Img } from '../components/ui/Img';
 import { PageHero } from '../components/ui/PageHero';
 import { ConceptualNote, Pending } from '../components/ui/Pending';
@@ -9,16 +12,62 @@ import type { ContentMap } from '../lib/types';
 
 type Section = ContentMap['infrastructure']['facilities'];
 
+/**
+ * General industry overview, shown (and labelled as such) until Arizen enters its own
+ * operational steps in the dashboard. It describes how polymer granules are typically
+ * made, not Arizen's specific operations.
+ */
+const typicalProcess: FlowStep[] = [
+  { icon: 'raw', output: 'resin', title: 'Raw material', text: 'Polymer resin and additives are received, checked and kept dry.' },
+  { icon: 'blend', output: 'blend', title: 'Blending', text: 'Resin, colour and additives are weighed and mixed to the recipe.' },
+  { icon: 'extrude', output: 'melt', title: 'Melt extrusion', text: 'A heated screw melts and mixes the blend, then pushes it out as strands.' },
+  { icon: 'cool', output: 'strand', title: 'Cooling', text: 'The strands pass through a water bath and harden.' },
+  { icon: 'pelletise', output: 'pellet', title: 'Pelletising', text: 'A rotating cutter chops the strands into uniform granules.' },
+  { icon: 'test', output: 'pellet', title: 'Quality testing', text: 'Samples are tested for properties such as melt flow and impact strength.' },
+  { icon: 'pack', title: 'Packing & dispatch', text: 'Granules are bagged, labelled and sent out to customers.' },
+];
+
+/** Image that wipes open from its outer edge, then drifts gently against the scroll. */
+function RevealFigure({ fromRight, children }: { fromRight: boolean; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? ['0%', '0%'] : ['-5%', '5%']);
+  return (
+    <motion.div
+      ref={ref}
+      className="absolute inset-0"
+      initial={{ clipPath: fromRight ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)' }}
+      whileInView={{ clipPath: 'inset(0 0% 0 0%)' }}
+      viewport={{ once: true, margin: '0px 0px -12% 0px' }}
+      transition={{ duration: 1.2, ease: easePremium }}
+    >
+      <motion.div
+        className="absolute inset-0"
+        style={{ y }}
+        initial={{ scale: 1.22 }}
+        whileInView={{ scale: 1.1 }}
+        viewport={{ once: true, margin: '0px 0px -12% 0px' }}
+        transition={{ duration: 1.6, ease: easePremium }}
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function ImageSection({ section, index, eyebrow }: { section: Section; index: number; eyebrow: string }) {
   const flip = index % 2 === 1;
   return (
     <section aria-label={section.heading} className={`py-20 sm:py-28 ${flip ? 'bg-paper' : 'bg-white'}`}>
       <div className={`shell grid items-center gap-12 lg:grid-cols-12 lg:gap-20`}>
-        <Reveal className={`lg:col-span-7 ${flip ? 'lg:order-2' : ''}`}>
+        <div className={`lg:col-span-7 ${flip ? 'lg:order-2' : ''}`}>
           <figure>
             <div className={`relative aspect-[4/3] overflow-hidden ${flip ? 'bg-white' : 'bg-paper'}`}>
               {section.image.url ? (
-                <Img src={section.image.url} alt={section.image.alt} sizes="(min-width: 1024px) 55vw, 100vw" className={`h-full w-full ${section.imageIsConceptual ? 'object-contain p-6' : 'object-cover'}`} />
+                <RevealFigure fromRight={flip}>
+                  <Img src={section.image.url} alt={section.image.alt} sizes="(min-width: 1024px) 55vw, 100vw" className={`h-full w-full ${section.imageIsConceptual ? 'object-contain p-8' : 'object-cover'}`} />
+                </RevealFigure>
               ) : (
                 <div className="grid h-full place-items-center p-8">
                   <Pending label={`${section.heading}: photograph`} />
@@ -26,12 +75,14 @@ function ImageSection({ section, index, eyebrow }: { section: Section; index: nu
               )}
             </div>
             {section.imageIsConceptual && section.image.url && (
-              <figcaption className="mt-3">
-                <ConceptualNote />
-              </figcaption>
+              <Reveal delay={0.4} y={8}>
+                <figcaption className="mt-3">
+                  <ConceptualNote />
+                </figcaption>
+              </Reveal>
             )}
           </figure>
-        </Reveal>
+        </div>
         <div className="lg:col-span-5">
           <SectionHeading eyebrow={`${String(index + 1).padStart(2, '0')} — ${eyebrow}`} title={section.heading} titleClassName="text-[clamp(2rem,3.6vw,3.25rem)]" />
           <Reveal delay={0.1} className="prose-body mt-6 leading-relaxed text-muted">
@@ -51,6 +102,7 @@ export default function Infrastructure() {
     [c.distribution, 'Distribution'],
     [c.handling, 'Handling'],
   ];
+  const ownSteps = c.processes.steps.length > 0;
 
   return (
     <>
@@ -63,22 +115,28 @@ export default function Infrastructure() {
         <ImageSection key={eyebrow} section={s} index={i} eyebrow={eyebrow} />
       ))}
 
-      <section aria-labelledby="process-title" className="bg-navy py-24 text-white sm:py-32">
-        <div className="shell">
-          <SectionHeading eyebrow="Operations" title={c.processes.heading} id="process-title" tone="dark" />
-          {c.processes.steps.length ? (
-            <Stagger as="ol" className="relative mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-              {c.processes.steps.map((s, i) => (
-                <StaggerItem as="li" key={s.title} className="relative border-t border-white/15 pt-8">
-                  <span className="absolute -top-[5px] left-0 h-2.5 w-2.5 rounded-full bg-cyan" aria-hidden="true" />
-                  <span className="tabular font-display text-sm font-semibold text-cyan">Step {String(i + 1).padStart(2, '0')}</span>
-                  <h3 className="mt-3 font-display text-xl font-bold tracking-tight">{s.title}</h3>
-                  <p className="mt-2 leading-relaxed text-silver/70">{s.text}</p>
-                </StaggerItem>
-              ))}
-            </Stagger>
+      <section aria-labelledby="process-title" className="relative overflow-hidden bg-navy py-24 text-white sm:py-32">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_75%_0%,rgba(40,104,160,0.35),transparent_70%)]" />
+        <div className="shell relative">
+          {ownSteps ? (
+            <SectionHeading eyebrow="Operations" title={c.processes.heading} id="process-title" tone="dark" />
           ) : (
-            <Pending tone="dark" label="Operational processes: from order to dispatch" className="mt-12" />
+            <SectionHeading
+              eyebrow="Making process"
+              title="How polymer granules are made"
+              id="process-title"
+              tone="dark"
+              intro="Follow one batch down the line: resin is blended, melted, drawn into strands, cooled, cut into granules, tested and packed."
+            />
+          )}
+          <div className="mt-12">
+            <ProcessFlow steps={ownSteps ? c.processes.steps : typicalProcess} label={ownSteps ? c.processes.heading : 'Typical polymer granule process'} />
+          </div>
+          {!ownSteps && (
+            <p className="mt-12 flex items-center gap-3 text-xs tracking-wide text-white/65">
+              <span className="h-px w-6 bg-current" aria-hidden="true" />
+              A typical industry process, shown for illustration. Arizen’s own operational steps will be published here once confirmed.
+            </p>
           )}
         </div>
       </section>
