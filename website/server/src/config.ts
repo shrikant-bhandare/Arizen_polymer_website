@@ -48,6 +48,8 @@ const parsed = schema.parse(Object.fromEntries(Object.entries(process.env).filte
 if (parsed.NODE_ENV === 'production') {
   // Fail fast rather than run in production with a guessable signing key.
   if (parsed.JWT_SECRET.length < 32) throw new Error('JWT_SECRET must be set to at least 32 random characters in production.');
+  // Vercel has no local database, so the localhost default can never work there.
+  if (process.env.VERCEL && !process.env.MONGODB_URI) throw new Error('MONGODB_URI must be set to the MongoDB Atlas connection string.');
   if (!parsed.SITE_URL.startsWith('https://')) console.warn('[config] SITE_URL should be the public https:// address in production.');
 } else if (!parsed.JWT_SECRET) {
   parsed.JWT_SECRET = 'development-only-secret-do-not-use-in-production-0000';
