@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+/* Fonts are bundled locally (Latin + Latin Extended, which carries ₹). */
+@font-face {
+  font-family: 'Inter Var';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./assets/fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter Var';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./assets/fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Manrope Var';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('./assets/fonts/manrope-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope Var';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('./assets/fonts/manrope-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@theme {
+  --color-navy: #101c2c;
+  --color-graphite: #182432;
+  --color-blue: #2864a8;
+  --color-cyan: #51c7d9;
+  --color-silver: #dce3eb;
+  --color-paper: #f5f7fa;
+  --color-muted: #566476;
+  --color-mist: #9fb0c3;
+
+  --font-sans: 'Inter Var', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Manrope Var', 'Inter Var', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-scroll-cue: scroll-cue 2.4s var(--ease-premium) infinite;
+  --animate-drift: drift 26s ease-in-out infinite alternate;
+  --animate-flow: flow 2.2s linear infinite;
+
+  @keyframes scroll-cue {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(220%); }
+  }
+  @keyframes flow {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(400%); }
+  }
+  @keyframes drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to { transform: translate3d(-2%, 1.5%, 0) rotate(2.5deg); }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    background: var(--color-navy);
+  }
+  body {
+    @apply bg-white font-sans text-navy antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-cyan);
+    color: var(--color-navy);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 3px;
+  }
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+  section[id] {
+    scroll-margin-top: 4rem;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-14 xl:px-20;
+  }
+  .eyebrow {
+    @apply font-display text-[0.7rem] font-semibold tracking-[0.28em] uppercase;
+  }
+  .display {
+    @apply font-display font-extrabold tracking-[-0.035em];
+    line-height: 0.96;
+    word-spacing: 0.08em;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------- Print */
+
+.print-only {
+  display: none;
+}
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm;
+
+  @bottom-left {
+    content: 'Neureonix  ·  Proposal NP/2026-27/001  ·  Arizen Polymers India Private Limited';
+    font-family: 'Inter Var', sans-serif;
+    font-size: 7.5pt;
+    color: #566476;
+  }
+  @bottom-right {
+    content: 'Page ' counter(page) ' of ' counter(pages);
+    font-family: 'Inter Var', sans-serif;
+    font-size: 7.5pt;
+    color: #566476;
+  }
+}
+
+@page cover {
+  margin: 0;
+
+  @bottom-left {
+    content: none;
+  }
+  @bottom-right {
+    content: none;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .screen-only {
+    display: none !important;
+  }
+  .print-only {
+    display: block;
+  }
+}

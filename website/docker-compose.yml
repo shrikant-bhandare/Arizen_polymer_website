@@ -1,0 +1,12 @@
+# Local development database. Production uses deploy/docker-compose.prod.yml.
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27027:27017" # this machine only; 27027 avoids clashing with other local MongoDBs
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

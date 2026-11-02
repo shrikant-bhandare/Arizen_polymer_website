@@ -1,0 +1,8 @@
+node_modules/
+dist/
+server/.env
+server/uploads/
+scripts/.hero/
+test-results/
+e2e-output/
+*.log

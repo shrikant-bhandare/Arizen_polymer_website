@@ -1,0 +1,15 @@
+# Store text with LF line endings everywhere, so deploy scripts and configs
+# (backup.sh, nginx.conf, Dockerfile) work unchanged on Linux servers.
+* text=auto eol=lf
+
+# Binary assets: never touch line endings or attempt text diffs
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.mp4 binary
+*.webm binary
+*.woff2 binary
+*.pdf binary
