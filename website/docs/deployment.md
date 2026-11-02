@@ -2,7 +2,7 @@
 
 > Nothing here has been run against live infrastructure. Deploying, changing DNS, or
 > provisioning servers needs Arizen's explicit authorisation, and the domain and hosting
-> should be registered in Arizen's name (proposal terms).
+> should be registered in Arizen's name.
 
 The app is one Node.js process that serves the website, the CMS dashboard, the API, uploaded
 media, `sitemap.xml` and `robots.txt`, backed by MongoDB. Put it behind Nginx (or any HTTPS

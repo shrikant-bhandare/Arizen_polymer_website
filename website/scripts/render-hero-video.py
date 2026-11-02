@@ -2,7 +2,7 @@
 Renders the homepage hero loop from two granule-bed stills.
 
 Input: hero_clear.png and hero_white.png (same pellet layout, different material),
-produced by ../scripts/render-materials.py. Output: a seamless 10-second loop in
+produced by render-materials.py. Output: a seamless 10-second loop in
 which clear granules dissolve into white ones and back, with a slow camera push,
 rack focus, a cool light sweep and drifting particles, graded deep navy so white
 headline type stays readable.

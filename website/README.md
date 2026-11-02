@@ -97,9 +97,8 @@ Nano Banana production brief, prompts and replacement steps are in
 **[docs/visual-production.md](docs/visual-production.md)**. Regenerate the stand-ins with:
 
 ```bash
-python ../scripts/render-materials.py --width 1800 --out client/public/media/products hips abs hdpe gpps
-node scripts/build-image-variants.mjs
-python ../scripts/render-materials.py --out scripts/.hero hero_clear hero_white && python scripts/render-hero-video.py
+python scripts/render-materials.py && node scripts/build-image-variants.mjs
+python scripts/render-materials.py --out scripts/.hero hero_clear hero_white && python scripts/render-hero-video.py
 python scripts/render-illustrations.py && python scripts/make-og-image.py
 ```
 

@@ -5,10 +5,12 @@ Each image is a close-up of a granule bed lit like a product shot. They are
 abstract material visuals, not photographs of Arizen products, and can be
 replaced with official photography supplied by the client.
 
+Run from the website/ folder:
+
     pip install numpy pillow
-    python scripts/render-materials.py                      # proposal images
-    python scripts/render-materials.py --width 1800 --out website/client/public/media/products hips abs hdpe gpps
-    python scripts/render-materials.py --out website/scripts/.hero hero_clear hero_white   # hero video beds
+    python scripts/render-materials.py                                      # product images
+    node scripts/build-image-variants.mjs                                   # their responsive sizes
+    python scripts/render-materials.py --out scripts/.hero hero_clear hero_white   # hero video beds
 """
 
 import argparse
@@ -20,7 +22,7 @@ from PIL import Image, ImageFilter
 
 RW, RH = 2400, 1800          # render size (2x supersampled)
 OW, OH = 1200, 900           # output size
-OUT = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "materials")
+OUT = os.path.join(os.path.dirname(__file__), "..", "client", "public", "media", "products")
 
 
 def norm(v):
@@ -52,10 +54,10 @@ MATERIALS = {
     # depth of field or vignette; the video applies its own.
     "hero_clear": dict(kind="clear", tint=(0.80, 0.93, 0.98), axes=(1.45, 1.0, 0.92),
                        spec=1.8, shin=260, tilt=0.2, unit=40, layers=2, spacing=1.12, seed=71,
-                       width=2400, aspect=0.5625, dof=False, vignette=False, print=False),
+                       width=2400, aspect=0.5625, dof=False, vignette=False, png=True),
     "hero_white": dict(kind="opaque", albedo=(0.90, 0.92, 0.94), axes=(1.45, 1.0, 0.92),
                        spec=0.35, shin=40, wrap=0.3, tilt=0.2, unit=40, layers=2, spacing=1.12, seed=71,
-                       width=2400, aspect=0.5625, dof=False, vignette=False, print=False),
+                       width=2400, aspect=0.5625, dof=False, vignette=False, png=True),
 }
 
 
@@ -220,7 +222,7 @@ def caustics(pellets, unit):
 def render(name, width=None, out_dir=None):
     global RW, RH, OW, OH
     m = MATERIALS[name]
-    OW = width or m.get("width", 1200)
+    OW = width or m.get("width", 1800)
     OH = round(OW * m.get("aspect", 0.75))
     RW, RH = OW * 2, OH * 2
     out_dir = out_dir or OUT
@@ -301,12 +303,8 @@ def render(name, width=None, out_dir=None):
     final = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
     final.save(path, "WEBP", quality=80, method=6)
     print(f"{path}  {os.path.getsize(path) // 1024} KB")
-    if not m.get("print", True):
-        final.save(os.path.join(out_dir, f"{name}.png"))  # lossless source for further processing
-        return
-    print_path = os.path.join(out_dir, f"{name}-print.jpg")
-    final.resize((900, 675), Image.LANCZOS).save(print_path, "JPEG", quality=82, optimize=True, progressive=True)
-    print(f"{print_path}  {os.path.getsize(print_path) // 1024} KB")
+    if m.get("png"):
+        final.save(os.path.join(out_dir, f"{name}.png"))  # lossless source for the hero video
 
 
 if __name__ == "__main__":
