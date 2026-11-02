@@ -27,12 +27,18 @@ const typicalProcess: FlowStep[] = [
   { icon: 'pack', title: 'Packing & dispatch', text: 'Granules are bagged, labelled and sent out to customers.' },
 ];
 
-/** Image that wipes open from its outer edge, then drifts gently against the scroll. */
-function RevealFigure({ fromRight, children }: { fromRight: boolean; children: ReactNode }) {
+/**
+ * Image that wipes open from its outer edge, then drifts gently against the scroll.
+ * Photographs settle from a slight zoom; illustrations are never scaled, so the
+ * whole drawing always stays inside its padded frame.
+ */
+function RevealFigure({ fromRight, illustration, children }: { fromRight: boolean; illustration: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], reduce ? ['0%', '0%'] : ['-5%', '5%']);
+  const drift = reduce ? 0 : illustration ? 2 : 5;
+  const y = useTransform(scrollYProgress, [0, 1], [`-${drift}%`, `${drift}%`]);
+  const zoom = illustration ? { from: 1, to: 1 } : { from: 1.22, to: 1.1 };
   return (
     <motion.div
       ref={ref}
@@ -45,8 +51,8 @@ function RevealFigure({ fromRight, children }: { fromRight: boolean; children: R
       <motion.div
         className="absolute inset-0"
         style={{ y }}
-        initial={{ scale: 1.22 }}
-        whileInView={{ scale: 1.1 }}
+        initial={{ scale: zoom.from }}
+        whileInView={{ scale: zoom.to }}
         viewport={{ once: true, margin: '0px 0px -12% 0px' }}
         transition={{ duration: 1.6, ease: easePremium }}
       >
@@ -65,7 +71,7 @@ function ImageSection({ section, index, eyebrow }: { section: Section; index: nu
           <figure>
             <div className={`relative aspect-[4/3] overflow-hidden ${flip ? 'bg-white' : 'bg-paper'}`}>
               {section.image.url ? (
-                <RevealFigure fromRight={flip}>
+                <RevealFigure fromRight={flip} illustration={section.imageIsConceptual}>
                   <Img src={section.image.url} alt={section.image.alt} sizes="(min-width: 1024px) 55vw, 100vw" className={`h-full w-full ${section.imageIsConceptual ? 'object-contain p-8' : 'object-cover'}`} />
                 </RevealFigure>
               ) : (

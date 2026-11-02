@@ -36,9 +36,26 @@ class Scene:
         self.s = scale
         self.ox, self.oy = origin
         self.items = []  # (depth, svg)
+        self.bounds = [math.inf, math.inf, -math.inf, -math.inf]  # drawn extent, for the viewBox
 
     def iso(self, x, y, z):
-        return (self.ox + (x - y) * self.s * COS30, self.oy + (x + y) * self.s * 0.5 - z * self.s)
+        px, py = self.ox + (x - y) * self.s * COS30, self.oy + (x + y) * self.s * 0.5 - z * self.s
+        b = self.bounds
+        b[0], b[1], b[2], b[3] = min(b[0], px), min(b[1], py), max(b[2], px), max(b[3], py)
+        return px, py
+
+    def view_box(self, margin=24):
+        """The drawn extent plus a margin, widened to the 4:3 frame the website shows it in."""
+        x0, y0, x1, y1 = self.bounds
+        x0, y0, x1, y1 = x0 - margin, y0 - margin, x1 + margin, y1 + margin
+        w, h = x1 - x0, y1 - y0
+        if w / h > 4 / 3:
+            pad = (w * 3 / 4 - h) / 2
+            y0, h = y0 - pad, h + 2 * pad
+        else:
+            pad = (h * 4 / 3 - w) / 2
+            x0, w = x0 - pad, w + 2 * pad
+        return f"{x0:.0f} {y0:.0f} {w:.0f} {h:.0f}"
 
     def poly(self, pts, fill, stroke=INK, sw=1.1, opacity=1.0, extra=""):
         d = " ".join(f"{px:.1f},{py:.1f}" for px, py in (self.iso(*p) for p in pts))
@@ -86,6 +103,16 @@ class Scene:
         hub = [self.iso(cx + r * 0.45 * math.cos(t), y, cz + r * 0.45 * math.sin(t)) for t in (2 * math.pi * i / 24 for i in range(24))]
         self.add(cx + y + depth_bias, path(pts, "#27323C", INK) + path(hub, "#C3CFDB", INK, 0.8))
 
+    def side_wheel(self, x, cy, cz, r, depth_bias=0.0):
+        """A wheel on a right-hand (x = const) face, e.g. a vehicle parked along the y axis."""
+        pts = [self.iso(x, cy + r * math.cos(t), cz + r * math.sin(t)) for t in (2 * math.pi * i / 32 for i in range(32))]
+        hub = [self.iso(x, cy + r * 0.45 * math.cos(t), cz + r * 0.45 * math.sin(t)) for t in (2 * math.pi * i / 24 for i in range(24))]
+        self.add(x + cy + depth_bias, path(pts, "#27323C", INK) + path(hub, "#C3CFDB", INK, 0.8))
+
+    def line(self, a, b, color=INK, sw=6, depth=0.0, opacity=0.85):
+        p, q = self.iso(*a), self.iso(*b)
+        self.add(depth, f'<path d="M{p[0]:.1f},{p[1]:.1f} L{q[0]:.1f},{q[1]:.1f}" stroke="{color}" stroke-width="{sw}" stroke-linecap="round" stroke-opacity="{opacity}"/>')
+
     def floor(self, x0, y0, x1, y1, step=1.0):
         corners = [self.iso(x0, y0, 0), self.iso(x1, y0, 0), self.iso(x1, y1, 0), self.iso(x0, y1, 0)]
         lines = []
@@ -118,7 +145,7 @@ class Scene:
             for k, v in PALETTE.items()
         )
         return (
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" role="img" aria-label="{title}">\n'
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{self.view_box()}" role="img" aria-label="{title}">\n'
             f"<title>{title}</title>\n<defs>{grads}"
             '<marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#47C5D3"/></marker>'
             f"</defs>\n{body}\n</svg>\n"
@@ -167,36 +194,44 @@ def palletised_sacks(sc, x, y, z, nx=3, ny=2, nz=3, bias=0.0):
 
 
 def warehousing():
-    sc = Scene(scale=44, origin=(W / 2 + 40, 175))
-    sc.floor(-1, -1, 13, 11)
-    for row_y in (1.0, 6.0):
+    sc = Scene(scale=38, origin=(W / 2 + 30, 215))
+    sc.floor(-1, -1, 13, 9.5)
+    # Two rows of pallet racking (open frames: thin posts and beams) with an aisle between.
+    levels, bay_w, rack_d, post = (0.0, 1.6, 3.2), 3.4, 1.3, 0.12
+    for row_y in (0.6, 6.4):
         for bay in range(3):
-            bx = 1 + bay * 3.4
-            for level, lz in enumerate((0.0, 1.7, 3.4)):
-                # uprights (per level segment), beams, then the pallet load
-                for ux in (bx, bx + 3.2):
-                    sc.box(ux, row_y, lz, 0.14, 1.3, 1.7, "blue", depth_bias=-0.4)
-                sc.box(bx + 0.14, row_y, lz + 1.55, 3.06, 0.12, 0.12, "blue", depth_bias=0.3)
-                sc.box(bx + 0.14, row_y + 1.18, lz + 1.55, 3.06, 0.12, 0.12, "blue", depth_bias=0.6)
-                if (row_y, bay, level) not in {(6.0, 2, 2), (1.0, 1, 0)}:
-                    palletised_sacks(sc, bx + 0.25, row_y + 0.12, lz + 0.02, nx=3, ny=2, nz=2 if level == 2 else 3)
-    sc.dashed([(0.2, 4.3, 0.01), (11.8, 4.3, 0.01)], arrow=True)
+            bx = 1 + bay * bay_w
+            for level, lz in enumerate(levels):
+                # Beams the pallets stand on: back beam behind the load, front beam in front of it.
+                sc.box(bx, row_y, lz + 0.02, bay_w, 0.1, 0.12, "blue", depth_bias=-1.2)
+                sc.box(bx, row_y + rack_d - 0.1, lz + 0.02, bay_w, 0.1, 0.12, "blue", depth_bias=-0.8)
+                if (row_y, bay, level) not in {(6.4, 2, 2), (0.6, 1, 0)}:
+                    palletised_sacks(sc, bx + 0.25, row_y + 0.08, lz + 0.14, nx=3, ny=2, nz=2 if level == 2 else 3)
+            sc.box(bx, row_y, 4.8, bay_w, 0.1, 0.12, "blue", depth_bias=-1.2)
+            sc.box(bx, row_y + rack_d - 0.1, 4.8, bay_w, 0.1, 0.12, "blue", depth_bias=-0.8)
+        for ux in (1 + i * bay_w for i in range(4)):
+            for lz in levels:
+                sc.box(ux - post / 2, row_y, lz, post, post, 1.6, "blue", depth_bias=-0.6)
+                sc.box(ux - post / 2, row_y + rack_d - post, lz, post, post, 1.6, "blue", depth_bias=0.4)
+    sc.dashed([(0.2, 4.15, 0.01), (11.8, 4.15, 0.01)], arrow=True)
     return sc.svg("Conceptual illustration: warehouse racking holding palletised polymer bags")
 
 
 def handling():
     sc = Scene(scale=58, origin=(W / 2 - 20, 210))
-    sc.floor(-1, -1, 10, 9)
-    # Pallet truck carrying a load
-    sc.shadow(2.0, 3.0, 3.6, 1.4)
-    sc.box(2.2, 3.15, 0.08, 2.6, 0.18, 0.08, "steel")
-    sc.box(2.2, 4.07, 0.08, 2.6, 0.18, 0.08, "steel")
-    palletised_sacks(sc, 2.1, 3.0, 0.16, nx=3, ny=2, nz=3)
-    sc.box(4.85, 3.0, 0.0, 0.6, 1.4, 0.75, "cyan")
-    sc.wheel(5.15, 4.4, 0.18, 0.18)
-    handle = [sc.iso(5.4, 3.7, 0.75), sc.iso(6.6, 3.7, 2.1)]
-    sc.add(9.5, f'<path d="M{handle[0][0]:.1f},{handle[0][1]:.1f} L{handle[1][0]:.1f},{handle[1][1]:.1f}" stroke="{INK}" stroke-width="6" stroke-linecap="round" stroke-opacity="0.85"/>')
-    sc.dashed([(5.8, 4.9, 0.01), (8.6, 4.9, 0.01)], arrow=True)
+    sc.floor(-1, -1, 9.5, 8.5)
+    # Hand pallet truck (pallet jack) lifting a loaded pallet: two forks under the pallet,
+    # a pump unit with a steering wheel at the rear, and a tiller handle with a loop grip.
+    sc.shadow(2.0, 3.0, 4.0, 1.4)
+    for fy in (3.2, 3.95):
+        sc.box(2.25, fy, 0.04, 2.7, 0.25, 0.1, "navy", depth_bias=-2)
+    pw, pd = palletised_sacks(sc, 2.1, 3.0, 0.18, nx=3, ny=2, nz=3)
+    sc.box(4.95, 3.2, 0.04, 0.5, 1.0, 0.16, "navy", depth_bias=-0.4)  # chassis joining the forks
+    sc.box(5.0, 3.4, 0.2, 0.42, 0.6, 0.55, "cyan")  # hydraulic pump unit
+    sc.wheel(5.21, 4.0, 0.16, 0.16, depth_bias=1.5)
+    sc.line((5.21, 3.7, 0.75), (6.05, 3.7, 2.05), depth=12)  # tiller
+    sc.line((6.05, 3.42, 2.05), (6.05, 3.98, 2.05), sw=7, depth=12.1)  # grip
+    sc.dashed([(6.3, 4.9, 0.01), (8.8, 4.9, 0.01)], arrow=True)
     # Stacked pallets awaiting dispatch
     for i, (px, py) in enumerate(((0.0, 0.0), (3.0, 0.0), (6.0, 0.0))):
         sc.shadow(px, py, 2.6, 1.2)
@@ -208,28 +243,34 @@ def handling():
 
 def facilities():
     sc = Scene(scale=40, origin=(W / 2 - 40, 210))
-    sc.floor(-1, -1, 16, 13, step=1.5)
+    sc.floor(-1, -1, 14, 13, step=1.5)
     # Main building
     sc.shadow(0, 0, 9, 6, 0.4)
     sc.box(0, 0, 0, 9, 6, 3.4, "wall", depth_bias=-3)
     sc.box(-0.15, -0.15, 3.4, 9.3, 6.3, 0.25, "roof", depth_bias=-2)
-    # Loading doors on the front-left face and a window band on the front-right face
+    # Wall details sit directly on the walls (just above them in drawing order), so
+    # anything standing in front of the building, the truck and silos, covers them.
+    wall = 4.5 + 0.01
     for i in range(3):
         x0 = 0.8 + i * 2.6
-        sc.add(20, sc.poly([(x0, 6.01, 0), (x0 + 1.8, 6.01, 0), (x0 + 1.8, 6.01, 2.3), (x0, 6.01, 2.3)], "#C3CFDB")
+        sc.add(wall, sc.poly([(x0, 6.01, 0), (x0 + 1.8, 6.01, 0), (x0 + 1.8, 6.01, 2.3), (x0, 6.01, 2.3)], "#C3CFDB")
                + "".join(sc.poly([(x0, 6.02, z), (x0 + 1.8, 6.02, z), (x0 + 1.8, 6.02, z + 0.04), (x0, 6.02, z + 0.04)], "#97AABD", stroke=None) for z in (0.5, 0.9, 1.3, 1.7, 2.1)))
-    sc.add(20, sc.poly([(9.01, 0.6, 2.4), (9.01, 5.4, 2.4), (9.01, 5.4, 2.9), (9.01, 0.6, 2.9)], "#47C5D3", opacity=0.75))
-    sc.add(20, sc.poly([(0.8, 6.01, 2.75), (8.2, 6.01, 2.75), (8.2, 6.01, 3.05), (0.8, 6.01, 3.05)], "#2868A0", stroke=None))
-    # Storage silos
+    sc.add(wall, sc.poly([(9.01, 0.6, 2.4), (9.01, 5.4, 2.4), (9.01, 5.4, 2.9), (9.01, 0.6, 2.9)], "#47C5D3", opacity=0.75))
+    sc.add(wall, sc.poly([(0.8, 6.01, 2.75), (8.2, 6.01, 2.75), (8.2, 6.01, 3.05), (0.8, 6.01, 3.05)], "#2868A0", stroke=None))
+    # Storage silos, feeding the building through a pipe just under the roof
     for i, cy in enumerate((0.8, 2.6)):
         sc.cylinder(11.2, cy, 0, 0.8, 4.6, "steel", depth_bias=-1 + i)
         sc.cylinder(11.2, cy, 4.6, 0.82, 0.18, "blue", depth_bias=-0.5 + i)
-    # Truck at the dock
-    sc.shadow(1.0, 7.0, 6.0, 1.8)
-    sc.box(1.2, 7.1, 0.35, 4.2, 1.6, 2.0, "steel", stripe=(0.45, 0.6, "#47C5D3"))
-    sc.box(5.5, 7.1, 0.35, 1.4, 1.6, 1.5, "navy")
-    for wx in (1.9, 4.6, 6.3):
-        sc.wheel(wx, 8.72, 0.32, 0.32, depth_bias=2)
+    sc.box(9.0, 2.5, 3.0, 1.45, 0.22, 0.22, "blue", depth_bias=-3)
+    # Truck reversed up to the middle loading door, trailer first
+    tx, tw = 3.5, 1.6
+    sc.shadow(tx, 6.2, tw, 5.7, 0.2)
+    sc.box(tx, 6.15, 0.35, tw, 4.2, 2.0, "steel", depth_bias=0.5)
+    sc.add(13.5, sc.poly([(tx + tw + 0.01, 6.7, 1.1), (tx + tw + 0.01, 9.9, 1.1), (tx + tw + 0.01, 9.9, 1.4), (tx + tw + 0.01, 6.7, 1.4)], "#47C5D3", stroke=None))
+    sc.box(tx, 10.45, 0.35, tw, 1.45, 1.55, "navy")
+    sc.add(17, sc.poly([(tx + 0.15, 11.91, 1.15), (tx + tw - 0.15, 11.91, 1.15), (tx + tw - 0.15, 11.91, 1.7), (tx + 0.15, 11.91, 1.7)], "#8FDCE5", opacity=0.9))
+    for wy in (7.0, 9.4, 11.2):
+        sc.side_wheel(tx + tw + 0.01, wy, 0.32, 0.32, depth_bias=7)
     return sc.svg("Conceptual illustration: an industrial facility with loading bays, silos and a truck at the dock")
 
 
@@ -278,7 +319,7 @@ def quality_lab():
         gx = 6.2 + 0.28 * math.cos(k * 0.7) * (0.4 + (k % 3) * 0.25)
         gy = 1.6 + 0.28 * math.sin(k * 0.7) * (0.4 + (k % 3) * 0.25)
         c = sc.iso(gx, gy, 1.3)
-        sc.add(9.5, f'<ellipse cx="{c[0]:.1f}" cy="{c[1]:.1f}" rx="6" ry="3.5" fill="#fff" stroke="{INK}" stroke-opacity="0.5" stroke-width="0.8"/>')
+        sc.add(10.5, f'<ellipse cx="{c[0]:.1f}" cy="{c[1]:.1f}" rx="6" ry="3.5" fill="#fff" stroke="{INK}" stroke-opacity="0.5" stroke-width="0.8"/>')
     # Report clipboard
     sc.box(3.3, 0.2, 1.2, 1.4, 0.9, 0.05, "steel", depth_bias=-1)
     for k in range(4):
