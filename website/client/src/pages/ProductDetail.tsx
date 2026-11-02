@@ -10,6 +10,7 @@ import { Img } from '../components/ui/Img';
 import { Pending } from '../components/ui/Pending';
 import { SectionHeading } from '../components/ui/SectionHeading';
 import { Seo } from '../components/ui/Seo';
+import { accentVars } from '../lib/site';
 import type { Product } from '../lib/types';
 
 export default function ProductDetail() {
@@ -24,7 +25,8 @@ export default function ProductDetail() {
     <>
       <Seo title={`${p.name} (${p.code})`} seo={p.seo} description={p.summary} image={p.image.url} />
 
-      <section ref={hero} aria-labelledby="product-title" className="relative isolate overflow-hidden bg-navy pt-32 text-white sm:pt-40">
+      <section ref={hero} aria-labelledby="product-title" style={accentVars(p.accent)} className="relative isolate overflow-hidden bg-navy pt-32 text-white sm:pt-40">
+        {p.accent && <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_85%_40%,color-mix(in_oklab,var(--accent)_38%,transparent),transparent_70%)]" />}
         <div className="shell grid gap-12 pb-16 lg:grid-cols-12 lg:items-end lg:pb-24">
           <div className="lg:col-span-6">
             <nav aria-label="Breadcrumb">
@@ -49,7 +51,13 @@ export default function ProductDetail() {
               </ol>
             </nav>
             {p.category && (
-              <motion.p className="eyebrow mt-10 text-cyan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+              <motion.p
+                className={`eyebrow mt-10 flex items-center gap-3 ${p.accent ? 'text-[color-mix(in_oklab,var(--accent)_45%,white)]' : 'text-cyan'}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                {p.accent && <span aria-hidden="true" className="h-1 w-10 bg-[var(--accent)]" />}
                 {p.category.name}
               </motion.p>
             )}

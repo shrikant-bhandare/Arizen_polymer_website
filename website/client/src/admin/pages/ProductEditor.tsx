@@ -18,6 +18,7 @@ const blank: Draft = {
   slug: '',
   category: '',
   tagline: '',
+  accent: '',
   summary: '',
   description: [],
   image: { url: '', alt: '' },
@@ -149,6 +150,15 @@ export default function ProductEditor() {
                   </option>
                 ))}
               </SelectInput>
+              <TextInput
+                label="Product colour"
+                value={draft.accent}
+                max={7}
+                placeholder="#1F4E9C"
+                onChange={(ev) => set(['accent'], ev.target.value.trim())}
+                error={e.accent}
+                help="Colour code for this product's card and page, e.g. #1F4E9C. Leave empty for the site default."
+              />
             </div>
             <TextInput label="Tagline" value={draft.tagline} max={160} onChange={(ev) => set(['tagline'], ev.target.value)} error={e.tagline} help="One line under the product name." />
             <TextArea label="Summary" value={draft.summary} max={400} rows={3} onChange={(ev) => set(['summary'], ev.target.value)} error={e.summary} help="Shown on product cards and as the default search description." />

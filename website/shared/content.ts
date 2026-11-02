@@ -130,10 +130,37 @@ export const contentPages = {
           },
         ],
       },
+      {
+        key: 'sustainability',
+        label: 'Journey towards sustainability',
+        type: 'group',
+        fields: [heading(), { key: 'body', label: 'Body', type: 'paragraphs' }],
+      },
       { key: 'vision', label: 'Vision', type: 'text', multiline: true, max: 800 },
       { key: 'mission', label: 'Mission', type: 'text', multiline: true, max: 800 },
-      { key: 'approach', label: 'Business approach', type: 'group', fields: [heading(), titledItems('items', 'Approach points', 'Point')] },
-      { key: 'values', label: 'Corporate values', type: 'group', fields: [heading(), titledItems('items', 'Values', 'Value')] },
+      {
+        key: 'values',
+        label: 'Environmental commitment',
+        type: 'group',
+        fields: [
+          heading(),
+          { key: 'intro', label: 'Introduction', type: 'text', multiline: true, max: 600 },
+          titledItems('items', 'Commitments', 'Commitment'),
+          { key: 'note', label: 'Closing note', type: 'text', multiline: true, max: 600 },
+        ],
+      },
+      {
+        key: 'approach',
+        label: 'Commitment to customers',
+        type: 'group',
+        fields: [heading(), { key: 'intro', label: 'Introduction', type: 'text', multiline: true, max: 800 }, titledItems('items', 'Points', 'Point')],
+      },
+      {
+        key: 'closing',
+        label: 'Closing statement',
+        type: 'group',
+        fields: [heading(), { key: 'body', label: 'Body', type: 'paragraphs' }, { key: 'signoff', label: 'Sign-off line', type: 'text', max: 160 }],
+      },
       {
         key: 'team',
         label: 'Team',
@@ -319,10 +346,12 @@ export interface ContentMap {
     intro: string;
     profile: { heading: string; body: string[] };
     overview: { heading: string; body: string[]; facts: { label: string; value: string }[] };
+    sustainability: { heading: string; body: string[] };
     vision: string;
     mission: string;
-    approach: { heading: string; items: TitledItem[] };
-    values: { heading: string; items: TitledItem[] };
+    values: { heading: string; intro: string; items: TitledItem[]; note: string };
+    approach: { heading: string; intro: string; items: TitledItem[] };
+    closing: { heading: string; body: string[]; signoff: string };
     team: { heading: string; intro: string; members: { name: string; role: string; photo: Img }[] };
     director: { heading: string; name: string; designation: string; photo: Img; message: string[] };
     seo: SeoFields;

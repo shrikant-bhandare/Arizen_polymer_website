@@ -11,7 +11,7 @@ import { getContent, getPublicSettings } from './content';
 export const PUBLIC_PAGES = ['home', 'about', 'products', 'infrastructure', 'quality', 'contact'] as const satisfies ContentKey[];
 export type PublicPage = (typeof PUBLIC_PAGES)[number];
 
-export const productCard = { name: 1, code: 1, slug: 1, tagline: 1, summary: 1, image: 1, category: 1, order: 1 } as const;
+export const productCard = { name: 1, code: 1, slug: 1, tagline: 1, accent: 1, summary: 1, image: 1, category: 1, order: 1 } as const;
 
 export async function siteData() {
   const [settings, navigation, footer, categories, products] = await Promise.all([

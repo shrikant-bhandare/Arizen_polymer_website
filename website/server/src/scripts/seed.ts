@@ -1,6 +1,6 @@
 /**
  * npm run seed            fill in missing content, catalogue and first admin
- * npm run seed -- --reset overwrite page content and settings with the defaults
+ * npm run seed -- --reset overwrite page content, settings and the seeded products with the defaults
  *
  * The first administrator comes from ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME
  * in server/.env. It is created only when no administrator exists yet.

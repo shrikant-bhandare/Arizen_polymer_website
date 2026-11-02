@@ -86,6 +86,8 @@ export const productInput = z
     slug,
     category: objectId.nullable().default(null),
     tagline: z.string().trim().max(160).default(''),
+    /** Signature colour for the product's card and page, e.g. #1F4E9C. Empty uses the site default. */
+    accent: z.union([z.literal(''), z.string().trim().regex(/^#[0-9a-f]{6}$/i, 'Use a colour code like #1F4E9C')]).default(''),
     summary: z.string().trim().max(400).default(''),
     description: z.array(z.string().trim().max(3000)).max(20).default([]),
     image: imageRef.default({ url: '', alt: '' }),
@@ -112,6 +114,7 @@ export const siteSettingsInput = z
     address: z.string().trim().max(400).default(''),
     email: z.union([z.literal(''), z.email()]).default(''),
     phone: z.union([z.literal(''), z.string().trim().regex(PHONE_PATTERN)]).default(''),
+    phone2: z.union([z.literal(''), z.string().trim().regex(PHONE_PATTERN)]).default(''),
     whatsapp: z.union([z.literal(''), z.string().trim().regex(PHONE_PATTERN)]).default(''),
     businessHours: z.string().trim().max(160).default(''),
     mapQuery: z.string().trim().max(300).default(''),

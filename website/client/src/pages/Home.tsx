@@ -80,6 +80,7 @@ export default function Home() {
               {products.map((p) => (
                 <li key={p._id}>
                   <Link to={`/products/${p.slug}`} className="group flex items-baseline gap-2 text-silver/70 transition-colors hover:text-white">
+                    {p.accent && <span aria-hidden="true" className="h-2 w-2 self-center rounded-full ring-2 ring-white/15" style={{ background: p.accent }} />}
                     <span className="font-display font-bold tracking-wide text-white">{p.code}</span>
                     <span className="hidden sm:inline">{p.name}</span>
                   </Link>
@@ -141,7 +142,7 @@ export default function Home() {
         <div className="shell">
           <SectionHeading eyebrow="Business strengths" title={c.strengths.heading} id="strengths-title" className="max-w-3xl" />
           {c.strengths.items.length ? (
-            <Stagger as="ol" className="mt-16 grid border-t border-navy/10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4">
+            <Stagger as="ol" className={`mt-16 grid border-t border-navy/10 sm:grid-cols-2 lg:mt-20 ${c.strengths.items.length === 5 ? 'lg:grid-cols-5' : c.strengths.items.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
               {c.strengths.items.map((s, i) => (
                 <StaggerItem as="li" key={s.title} className="border-b border-navy/10 py-10 sm:pr-8 lg:border-r lg:border-b-0 lg:px-8 lg:first:pl-0 lg:last:border-r-0">
                   <span className="tabular font-display text-sm font-semibold text-blue">{String(i + 1).padStart(2, '0')}</span>

@@ -9,7 +9,7 @@ import { SiteSettings, WebsiteContent } from '../models/site';
 import { seedCategories, seedContent, seedProducts, seedSettings } from './data';
 
 interface SeedOptions {
-  /** Overwrite page content and settings that already exist (never touches inquiries or users). */
+  /** Overwrite page content, settings and the seeded products (never touches inquiries, users or other products). */
   reset?: boolean;
   admin?: { name: string; email: string; password: string };
 }
@@ -40,11 +40,17 @@ export async function seedDatabase({ reset = false, admin }: SeedOptions = {}) {
   }
 
   for (const p of seedProducts) {
-    if (await Product.exists({ slug: p.slug })) continue;
+    const exists = await Product.exists({ slug: p.slug });
+    if (exists && !reset) continue;
     // Validate exactly as the dashboard would, so seeded products can be edited and saved unchanged.
     const valid = productInput.parse({ ...p, category: String(categoryIds.get(p.category)) });
-    await Product.create(valid);
-    created.push(`product: ${p.code}`);
+    if (exists) {
+      await Product.updateOne({ slug: p.slug }, { $set: valid });
+      created.push(`product reset: ${p.code}`);
+    } else {
+      await Product.create(valid);
+      created.push(`product: ${p.code}`);
+    }
   }
 
   if (admin && !(await AdminUser.exists({ role: 'admin' }))) {

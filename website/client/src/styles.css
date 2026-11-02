@@ -43,6 +43,10 @@
   --color-industrial: #152f48;
   --color-blue: #2868a0;
   --color-cyan: #47c5d3;
+  /* Sustainability green from Arizen's brochure: text-safe on white, and a bright tint for dark grounds. */
+  --color-leaf: #2b8a3e;
+  --color-leaf-bright: #7ccf5b;
+  --color-leaf-wash: #f1f8ef;
   --color-graphite: #27323c;
   --color-silver: #e5ebf0;
   --color-paper: #f7f9fb;

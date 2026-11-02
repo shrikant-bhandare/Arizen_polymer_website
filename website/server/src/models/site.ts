@@ -41,6 +41,7 @@ const siteSettingsSchema = new Schema(
     address: { type: String, default: '' },
     email: { type: String, default: '' },
     phone: { type: String, default: '' },
+    phone2: { type: String, default: '' },
     whatsapp: { type: String, default: '' },
     businessHours: { type: String, default: '' },
     mapQuery: { type: String, default: '' },

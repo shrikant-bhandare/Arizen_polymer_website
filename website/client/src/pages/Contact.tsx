@@ -61,9 +61,11 @@ export default function Contact() {
                   )}
                   {settings.phone && (
                     <Detail icon={<Phone className={icon} />} label="Phone">
-                      <a href={telHref(settings.phone)} className="hover:text-blue">
-                        {settings.phone}
-                      </a>
+                      {[settings.phone, settings.phone2].filter(Boolean).map((n) => (
+                        <a key={n} href={telHref(n)} className="block hover:text-blue">
+                          {n}
+                        </a>
+                      ))}
                     </Detail>
                   )}
                   {settings.whatsapp && (

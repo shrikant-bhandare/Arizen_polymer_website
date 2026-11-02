@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useRouteLoaderData } from 'react-router';
 import type { SiteData } from './types';
 
@@ -41,4 +41,9 @@ export const isInternal = (href: string) => href.startsWith('/') && !href.starts
 
 export function telHref(phone: string) {
   return `tel:${phone.replace(/[^\d+]/g, '')}`;
+}
+
+/** A product's signature colour as the `--accent` CSS variable (unset falls back to the site colours). */
+export function accentVars(accent: string | undefined): CSSProperties | undefined {
+  return accent ? ({ '--accent': accent } as CSSProperties) : undefined;
 }

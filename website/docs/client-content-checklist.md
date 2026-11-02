@@ -11,7 +11,7 @@ Tick items off as they are entered in the dashboard (`/admin`).
 
 | ☐ | Item | Format | Where it goes in the dashboard |
 |---|---|---|---|
-| ☐ | Official logo | SVG or transparent PNG/WebP, horizontal and square versions | Settings → Company → Official logo |
+| ☐ | Official logo | SVG or transparent PNG/WebP, horizontal and square versions (the brochure's "A" mark is not yet available as a clean file) | Settings → Company → Official logo |
 | ☐ | Brand guidelines (colours, fonts, logo usage) | PDF | Shared with Neureonix to confirm the website palette |
 | ☐ | Social media links (LinkedIn, etc.) | URLs | Settings → Social links |
 
@@ -19,18 +19,18 @@ Tick items off as they are entered in the dashboard (`/admin`).
 
 | ☐ | Item | Notes | Where |
 |---|---|---|---|
-| ☐ | Company profile | 150–300 words | Pages → About Us → Company profile |
-| ☐ | Company history | Founding year, milestones (verified only) | About Us → Company overview / Key facts |
-| ☐ | Vision statement | 1–2 sentences | About Us → Vision |
-| ☐ | Mission statement | 1–2 sentences | About Us → Mission |
-| ☐ | Business approach | 3–4 points | About Us → Business approach |
-| ☐ | Corporate values | 3–6 values with one line each | About Us → Corporate values |
+| ☑ | Company profile | Supplied ("Our Journey") | Pages → About Us → Company profile |
+| ☑ | Company history | Supplied: established 19 November 2025, M-69 MIDC Shrirampur | About Us → Company overview / Key facts |
+| ☑ | Vision statement | Supplied | About Us → Vision |
+| ☑ | Mission statement | Supplied | About Us → Mission |
+| ☑ | Commitment to customers | Supplied | About Us → Commitment to customers |
+| ☑ | Environmental commitment | Supplied (five goals and the e-waste note) | About Us → Environmental commitment |
 | ☐ | Director's name and designation | | About Us → Director's message |
 | ☐ | Director's photograph | Portrait, at least 1200 px tall | About Us → Director's message → Photograph |
 | ☐ | Director's message | 150–300 words, approved for publication | About Us → Director's message |
 | ☐ | Team details | Names, roles, photographs (with consent) | About Us → Team |
-| ☐ | Homepage company introduction | Review the seeded draft | Pages → Homepage → Company introduction |
-| ☐ | Business strengths | Review the seeded draft; add only verifiable strengths | Homepage → Business strengths |
+| ☑ | Homepage company introduction | Written from "Our Journey" | Pages → Homepage → Company introduction |
+| ☑ | Business strengths | The five points from the brochure | Homepage → Business strengths |
 
 ## Products (for each of HIPS, ABS, HDPE, Polystyrene granules)
 
@@ -72,12 +72,12 @@ When a real photograph replaces a conceptual illustration, **switch off "Image i
 
 | ☐ | Item | Where |
 |---|---|---|
-| ☐ | Registered / business address | Settings → Contact details → Business address |
+| ☑ | Registered / business address (M-69, MIDC Shrirampur, Dist. Ahilyanagar 413709) | Settings → Contact details → Business address |
 | ☐ | Official business email | Settings → Contact details |
-| ☐ | Contact phone number | Settings → Contact details |
+| ☑ | Contact phone numbers (+91 90821 56088, +91 88050 14188) | Settings → Contact details |
 | ☐ | WhatsApp number (optional) | Settings → Contact details |
 | ☐ | Business hours | Settings → Contact details |
-| ☐ | Google Maps location (name or address) | Settings → Contact details → Map location |
+| ☑ | Google Maps location (name or address) | Settings → Contact details → Map location |
 | ☐ | Inquiry notification recipients | Settings → Inquiry notifications (administrator) |
 
 ## Launch

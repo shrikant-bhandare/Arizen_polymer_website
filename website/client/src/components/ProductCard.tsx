@@ -2,6 +2,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import { ArrowUpRight } from 'lucide-react';
 import { useRef } from 'react';
 import { Link } from 'react-router';
+import { accentVars } from '../lib/site';
 import type { ProductCard as Card } from '../lib/types';
 import { easePremium } from './motion/Reveal';
 import { Img } from './ui/Img';
@@ -26,9 +27,14 @@ export function ProductCard({ product, index, tone = 'dark', sizes = '(min-width
       ref={ref}
       to={`/products/${product.slug}`}
       viewTransition
+      style={accentVars(product.accent)}
       className={`group relative flex h-full flex-col border transition-colors duration-500 ${dark ? 'border-white/10 bg-industrial hover:border-cyan/50' : 'border-navy/10 bg-white hover:border-blue/40'}`}
     >
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 bg-cyan transition-transform duration-700 ease-[var(--ease-premium)] group-hover:scale-x-100" />
+      {product.accent ? (
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 z-10 h-1 bg-[var(--accent)] transition-[height] duration-500 group-hover:h-1.5" />
+      ) : (
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 z-10 h-0.5 origin-left scale-x-0 bg-cyan transition-transform duration-700 ease-[var(--ease-premium)] group-hover:scale-x-100" />
+      )}
       <motion.div
         className="relative aspect-[4/3] overflow-hidden"
         initial={{ clipPath: 'inset(100% 0 0 0)' }}
@@ -44,7 +50,13 @@ export function ProductCard({ product, index, tone = 'dark', sizes = '(min-width
       </motion.div>
       <div className="relative -mt-14 flex flex-1 flex-col p-6 sm:p-8">
         <p className={`font-display text-[clamp(2.75rem,5vw,4.25rem)] leading-none font-extrabold tracking-[-0.04em] ${dark ? 'text-white' : 'text-navy'}`}>{product.code}</p>
-        <h3 className={`mt-3 font-display text-lg font-semibold tracking-tight ${dark ? 'text-cyan' : 'text-blue'}`}>{product.name}</h3>
+        <h3
+          className={`mt-3 font-display text-lg font-semibold tracking-tight ${
+            product.accent ? (dark ? 'text-[color-mix(in_oklab,var(--accent)_45%,white)]' : 'text-[color-mix(in_oklab,var(--accent)_78%,#101d2b)]') : dark ? 'text-cyan' : 'text-blue'
+          }`}
+        >
+          {product.name}
+        </h3>
         {product.summary && <p className={`mt-3 max-w-md leading-relaxed ${dark ? 'text-silver/70' : 'text-muted'}`}>{product.summary}</p>}
         <span aria-hidden="true" className="min-h-8 flex-1" />
         <span className={`flex items-center justify-between border-t pt-5 text-sm font-semibold ${dark ? 'border-white/10 text-white' : 'border-navy/10 text-navy'}`}>

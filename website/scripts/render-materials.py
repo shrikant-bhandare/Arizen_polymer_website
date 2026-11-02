@@ -40,13 +40,14 @@ AMB_COL = np.array((0.80, 0.86, 0.95)) * 0.26
 GROUND = np.array((0.035, 0.055, 0.085))
 
 MATERIALS = {
-    "hips": dict(kind="opaque", albedo=(0.93, 0.935, 0.93), axes=(1.45, 1.0, 0.9),
-                 spec=0.28, shin=36, wrap=0.35, tilt=0.18, unit=50, layers=3, seed=11),
-    "abs": dict(kind="opaque", albedo=(0.97, 0.84, 0.60), axes=(1.35, 1.05, 0.95),
-                spec=0.55, shin=80, wrap=0.2, tilt=0.18, unit=50, layers=3,
-                grade=(1.05, 0.99, 0.86), seed=23),
-    "hdpe": dict(kind="translucent", albedo=(0.86, 0.90, 0.91), axes=(1.22, 1.12, 0.62),
-                 spec=0.4, shin=30, wrap=0.3, trans=0.3, tilt=0.3, unit=52, layers=3, seed=37),
+    # Colours follow Arizen's own material photography: black HIPS (satin), black ABS
+    # (glossier), blue HDPE and clear polystyrene.
+    "hips": dict(kind="opaque", albedo=(0.045, 0.047, 0.052), axes=(1.45, 1.0, 0.9),
+                 spec=0.75, shin=48, wrap=0.35, tilt=0.18, unit=50, layers=3, seed=11),
+    "abs": dict(kind="opaque", albedo=(0.06, 0.062, 0.07), axes=(1.35, 1.05, 0.95),
+                spec=1.35, shin=150, wrap=0.2, tilt=0.18, unit=50, layers=3, seed=23),
+    "hdpe": dict(kind="opaque", albedo=(0.035, 0.2, 0.82), axes=(1.22, 1.12, 0.8),
+                 spec=0.9, shin=80, wrap=0.3, tilt=0.3, unit=52, layers=3, seed=37),
     "gpps": dict(kind="clear", tint=(0.84, 0.95, 0.98), axes=(1.5, 1.0, 0.95),
                  spec=1.8, shin=260, tilt=0.18, unit=54, layers=2, spacing=1.2, seed=53),
     # Website hero: two beds with identical geometry (same seed and layout) so the

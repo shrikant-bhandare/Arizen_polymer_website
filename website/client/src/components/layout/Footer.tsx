@@ -83,9 +83,16 @@ export function Footer() {
                 {settings.phone && (
                   <li className="flex gap-3">
                     <Phone className="mt-0.5 h-4 w-4 shrink-0 text-cyan" aria-hidden="true" />
-                    <a href={telHref(settings.phone)} className="hover:text-cyan">
-                      {settings.phone}
-                    </a>
+                    <span>
+                      {[settings.phone, settings.phone2].filter(Boolean).map((n, i) => (
+                        <span key={n}>
+                          {i > 0 && <span className="text-silver/40"> / </span>}
+                          <a href={telHref(n)} className="hover:text-cyan">
+                            {n}
+                          </a>
+                        </span>
+                      ))}
+                    </span>
                   </li>
                 )}
                 {settings.email && (

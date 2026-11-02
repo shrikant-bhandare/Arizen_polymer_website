@@ -57,6 +57,7 @@ export default function SettingsPage() {
           <div className="grid gap-5 sm:grid-cols-2">
             <TextInput label="Business email" type="email" value={draft.email} onChange={(ev) => set(['email'], ev.target.value)} error={e.email} />
             <TextInput label="Phone number" value={draft.phone} placeholder="+91 …" onChange={(ev) => set(['phone'], ev.target.value)} error={e.phone} />
+            <TextInput label="Second phone number" value={draft.phone2} placeholder="+91 …" onChange={(ev) => set(['phone2'], ev.target.value)} error={e.phone2} />
             <TextInput label="WhatsApp number" value={draft.whatsapp} placeholder="+91 …" onChange={(ev) => set(['whatsapp'], ev.target.value)} error={e.whatsapp} />
             <TextInput label="Business hours" value={draft.businessHours} max={160} placeholder="Mon–Sat, 9:30–18:30" onChange={(ev) => set(['businessHours'], ev.target.value)} />
           </div>

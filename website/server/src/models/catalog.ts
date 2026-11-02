@@ -28,6 +28,7 @@ const productSchema = new Schema(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
     category: { type: Schema.Types.ObjectId, ref: 'ProductCategory', default: null },
     tagline: { type: String, default: '' },
+    accent: { type: String, default: '' },
     summary: { type: String, default: '' },
     description: { type: [String], default: [] },
     image,

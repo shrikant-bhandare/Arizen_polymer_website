@@ -21,6 +21,7 @@ export interface ProductCard {
   code: string;
   slug: string;
   tagline: string;
+  accent: string;
   summary: string;
   image: Img;
   category: string | null;
@@ -47,6 +48,7 @@ export interface SiteSettings {
   address: string;
   email: string;
   phone: string;
+  phone2: string;
   whatsapp: string;
   businessHours: string;
   mapQuery: string;

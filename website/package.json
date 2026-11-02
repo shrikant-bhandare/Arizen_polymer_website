@@ -13,7 +13,7 @@
   "scripts": {
     "db:up": "docker compose up -d mongo",
     "db:down": "docker compose down",
-    "seed": "npm run seed -w server",
+    "seed": "npm run seed -w server --",
     "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client && npm run build -w server",
     "start": "npm run start -w server",

@@ -122,7 +122,10 @@ export function Header() {
                           <span className="block aspect-[4/3] overflow-hidden bg-paper">
                             <Img src={p.image.url} alt="" sizes="220px" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                           </span>
-                          <span className="mt-3 block font-display text-lg font-extrabold tracking-tight">{p.code}</span>
+                          <span className="mt-3 flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
+                            {p.accent && <span aria-hidden="true" className="h-3 w-1 rounded-full" style={{ background: p.accent }} />}
+                            {p.code}
+                          </span>
                           <span className="block text-sm text-muted group-hover:text-blue">{p.name}</span>
                         </Link>
                       </motion.li>
@@ -217,11 +220,11 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
           {navigation.ctaLabel || 'Request a Quote'}
         </Link>
         <div className="mt-auto space-y-1 pt-10 text-sm text-silver/60">
-          {settings.phone && (
-            <a href={telHref(settings.phone)} className="block hover:text-white">
-              {settings.phone}
+          {[settings.phone, settings.phone2].filter(Boolean).map((n) => (
+            <a key={n} href={telHref(n)} className="block hover:text-white">
+              {n}
             </a>
-          )}
+          ))}
           {settings.email && (
             <a href={`mailto:${settings.email}`} className="block hover:text-white">
               {settings.email}
